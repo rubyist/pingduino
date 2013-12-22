@@ -36,6 +36,8 @@ void loop()
     }
   }
   lastp2State = p2State;
+  
+  delay(100);
 }
 
 void showScore()
@@ -67,5 +69,4 @@ void resetGame()
 {
   p1Score = 0;
   p2Score = 0;
-  gameOver = 0;
 }
