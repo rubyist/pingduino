@@ -1,5 +1,11 @@
-#define P1PIN           2
-#define P2PIN           3
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12,11,5,4,3,2);
+
+// End display setup
+
+#define P1PIN           8
+#define P2PIN           9
 #define LONGPRESS_TIME 25
 
 enum { BUTTON_NONE=0, BUTTON_SHORT, BUTTON_LONG};
@@ -65,6 +71,10 @@ Button p2Button(P2PIN);
 
 void setup()
 {
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.print("Ping Ponger");
+  
   Serial.begin(9600);
   showScore();
   
@@ -105,6 +115,18 @@ void loop()
 
 void showScore()
 {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Player 1");
+  lcd.setCursor(13, 0);
+  lcd.print(p1Score);
+  
+  
+  lcd.setCursor(0, 1);
+  lcd.print("Player 2");
+  lcd.setCursor(13, 1);
+  lcd.print(p2Score);
+  
   Serial.print("P1: ");
   Serial.print(p1Score);
   Serial.print("  P2: ");
@@ -118,8 +140,12 @@ void checkForWinner()
     Serial.print("*** WINNER ***   ");
     if (p1Score > p2Score) {
       Serial.print("P1");
+      lcd.setCursor(10, 0);
+      lcd.print("WINNER");
     } else {
       Serial.print("P2");
+      lcd.setCursor(10, 1);
+      lcd.print("WINNER");
     }
     Serial.println("   *** WINNER ***");
     
