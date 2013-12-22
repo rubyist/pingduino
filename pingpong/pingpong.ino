@@ -32,7 +32,7 @@ void Button::init()
 int Button::handle()
 {
   int event;
-  int now_pressed = digitalRead(pin);
+  int now_pressed = !digitalRead(pin);
   
   if (!now_pressed && pressed) {
     if (counter < longpress_time)
@@ -48,7 +48,7 @@ int Button::handle()
   } else {
     counter = 0;
   }
-  
+    
   pressed = now_pressed;
   return event;
 }
@@ -58,38 +58,49 @@ int Button::handle()
 int p1Score = 0;
 int p2Score = 0;
 
+int gameOver = 0;
+
 Button p1Button(P1PIN);
 Button p2Button(P2PIN);
 
 void setup()
 {
-  pinMode(p1Pin, INPUT);
-  pinMode(p2Pin, INPUT);
   Serial.begin(9600);
   showScore();
   
   p1Button.init();
+  p2Button.init();
 }
 
 void loop()
 {
   int p1Event, p2Event;
- 
+  
   p1Event = p1Button.handle();
-  if (p1Event) {
+  if (!gameOver && p1Event == BUTTON_SHORT) {
     p1Score++;
     showScore();
     checkForWinner();
   }
   
+  if (gameOver && p1Event == BUTTON_LONG) {
+    resetGame();
+    showScore();
+  }
+  
   p2Event = p2Button.handle();
-  if (p2Event) {
+  if (!gameOver && p2Event == BUTTON_SHORT) {
     p2Score++;
     showScore();
     checkForWinner();
   }
-   
-  delay(100);
+  
+  if (gameOver && p2Event == BUTTON_LONG) {
+    resetGame();
+    showScore();
+  }
+  
+  delay(20);
 }
 
 void showScore()
@@ -112,8 +123,7 @@ void checkForWinner()
     }
     Serial.println("   *** WINNER ***");
     
-    resetGame();
-    showScore();
+    gameOver = 1;
   }
 }
 
@@ -121,6 +131,7 @@ void resetGame()
 {
   p1Score = 0;
   p2Score = 0;
+  gameOver = 0;
 }
 
 
