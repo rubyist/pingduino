@@ -6,8 +6,10 @@ LiquidCrystal lcd(12,11,5,4,3,2);
 
 #define P1PIN           8
 #define P2PIN           9
+#define SPEAKERPIN      6
 #define LONGPRESS_TIME 25
 
+// Button handling
 enum { BUTTON_NONE=0, BUTTON_SHORT, BUTTON_LONG};
 
 class Button {
@@ -59,8 +61,65 @@ int Button::handle()
   return event;
 }
 
+// Victory Song
+class VictorySong {
+  public:
+    VictorySong(int pin);
+    void init();
+    void play();
+  
+  protected:
+    const int pin;
+    int songLength;
+    char *notes;
+    int tempo;
+    int frequency(char note);
+};
 
+VictorySong::VictorySong(int p) : pin(p)
+{
+}
 
+void VictorySong::init()
+{  
+  pinMode(pin, OUTPUT);
+  songLength = 17;
+  notes = "efg dab bbbbbaagg";
+  tempo = 94;
+}
+
+void VictorySong::play()
+{
+  int i, duration;
+  int beats[] = {1,2,5,3,2,4,2,5,2,2,2,2,3,3,3,3,2};
+  for (i = 0; i < songLength; i++) {
+    duration = beats[i] * tempo;
+    
+    if (notes[i] == ' ') {
+      delay(duration);
+    } else {
+      tone(pin, frequency(notes[i]), duration);
+      delay(duration);
+    }
+    delay(tempo/10);
+  }
+}
+
+int VictorySong::frequency(char note)
+{
+  int i;
+  const int numNotes = 8;
+  char names[] = {'c', 'd', 'e', 'f', 'g', 'a', 'b', 'C'};
+  int frequencies[] = {262, 294, 330, 349, 392, 440, 494, 523};
+  for (i = 0; i < numNotes; i++) {
+    if (names[i] == note) {
+      return(frequencies[i]);
+    }
+  }
+  return 0;
+}
+
+// Game Logics
 int p1Score = 0;
 int p2Score = 0;
 
@@ -68,6 +127,7 @@ int gameOver = 0;
 
 Button p1Button(P1PIN);
 Button p2Button(P2PIN);
+VictorySong victorySong(SPEAKERPIN);
 
 void setup()
 {
@@ -80,6 +140,7 @@ void setup()
   
   p1Button.init();
   p2Button.init();
+  victorySong.init();
 }
 
 void loop()
@@ -148,6 +209,7 @@ void checkForWinner()
       lcd.print("WINNER");
     }
     Serial.println("   *** WINNER ***");
+    victorySong.play();
     
     gameOver = 1;
   }
