@@ -122,6 +122,8 @@ int VictorySong::frequency(char note)
 // Game Logics
 int p1Score = 0;
 int p2Score = 0;
+int currentServe = 0; // p1 = 0, p2 = 1
+int numServes = 0;
 
 int gameOver = 0;
 
@@ -150,24 +152,30 @@ void loop()
   p1Event = p1Button.handle();
   if (!gameOver && p1Event == BUTTON_SHORT) {
     p1Score++;
+    numServes++;
     showScore();
     checkForWinner();
   }
   
   if (gameOver && p1Event == BUTTON_LONG) {
     resetGame();
+    currentServe = 0;
+    numServes = 0;
     showScore();
   }
   
   p2Event = p2Button.handle();
   if (!gameOver && p2Event == BUTTON_SHORT) {
     p2Score++;
+    numServes++;
     showScore();
     checkForWinner();
   }
   
   if (gameOver && p2Event == BUTTON_LONG) {
     resetGame();
+    currentServe = 1;
+    numServes = 0;
     showScore();
   }
   
@@ -187,6 +195,18 @@ void showScore()
   lcd.print("Player 2");
   lcd.setCursor(13, 1);
   lcd.print(p2Score);
+  
+  if (numServes == 2) {
+    numServes = 0;
+    currentServe = currentServe == 0 ? 1 : 0;
+  }
+  
+  if (currentServe == 0) {
+    lcd.setCursor(15, 0);
+  } else {
+    lcd.setCursor(15, 1);
+  }
+  lcd.print("*");
   
   Serial.print("P1: ");
   Serial.print(p1Score);
