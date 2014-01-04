@@ -5,6 +5,7 @@
 #define LATCH 4
 #define CLK   3
 #define DATA  2
+#define INACTIVEMILLIS 600000 // 10 minutes
 
 // Seven Segment Display Handling
 byte DigitBytes[10]= {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x67};
@@ -127,6 +128,8 @@ int numServes = 0;
 int gameOver = 0;
 int victoryBlinkCounter = 0;
 
+unsigned long lastActivityTime;
+
 boolean p1Win = false;
 boolean p2Win = false;
 boolean blinkToggle = true;
@@ -146,6 +149,7 @@ void setup()
   p1Button.init();
   p2Button.init();
   victorySong.init();
+  lastActivityTime = millis();
 }
 
 
@@ -153,6 +157,12 @@ void loop()
 {
   int p1Event, p2Event;
 
+  Serial.println(millis() - lastActivityTime);
+  
+  if ((millis() - lastActivityTime) > INACTIVEMILLIS) {
+    shutDownLights();
+  }
+  
   if (gameOver) {
     victoryBlinkCounter++;
 
@@ -169,6 +179,7 @@ void loop()
   
   p1Event = p1Button.handle();
   if (!gameOver && p1Event == BUTTON_SHORT) {
+    lastActivityTime = millis();
     p1Score++;
     numServes++;
     showScore();
@@ -176,6 +187,7 @@ void loop()
   }
   
   if (gameOver && p1Event == BUTTON_LONG) {
+    lastActivityTime = millis();
     resetGame();
     currentServe = 0;
     numServes = 0;
@@ -184,6 +196,7 @@ void loop()
   
   p2Event = p2Button.handle();
   if (!gameOver && p2Event == BUTTON_SHORT) {
+    lastActivityTime = millis();
     p2Score++;
     numServes++;
     showScore();
@@ -191,6 +204,7 @@ void loop()
   }
   
   if (gameOver && p2Event == BUTTON_LONG) {
+    lastActivityTime = millis();
     resetGame();
     currentServe = 1;
     numServes = 0;
@@ -230,6 +244,14 @@ void showScore()
   } else {
     showP1Score(p1Score, false);
   }
+}
+
+void shutDownLights()
+{
+  digitalWrite(LATCH, LOW);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  digitalWrite(LATCH, HIGH);
 }
 
 void checkForWinner()
