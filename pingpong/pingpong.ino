@@ -1,13 +1,13 @@
-#include <LiquidCrystal.h>
-
-LiquidCrystal lcd(12,11,5,4,3,2);
-
-// End display setup
-
 #define P1PIN           8
 #define P2PIN           9
 #define SPEAKERPIN      6
 #define LONGPRESS_TIME 25
+#define LATCH 4
+#define CLK   3
+#define DATA  2
+
+// Seven Segment Display Handling
+byte DigitBytes[10]= {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x67};
 
 // Button handling
 enum { BUTTON_NONE=0, BUTTON_SHORT, BUTTON_LONG};
@@ -124,6 +124,8 @@ int p1Score = 0;
 int p2Score = 0;
 int currentServe = 0; // p1 = 0, p2 = 1
 int numServes = 0;
+boolean p1Win = false;
+boolean p2Win = false;
 
 int gameOver = 0;
 
@@ -133,11 +135,10 @@ VictorySong victorySong(SPEAKERPIN);
 
 void setup()
 {
-  lcd.begin(16, 2);
-  lcd.clear();
-  lcd.print("Ping Ponger");
-  
-  Serial.begin(9600);
+  pinMode(LATCH, OUTPUT);
+  pinMode(CLK, OUTPUT);
+  pinMode(DATA, OUTPUT);
+
   showScore();
   
   p1Button.init();
@@ -148,6 +149,7 @@ void setup()
 void loop()
 {
   int p1Event, p2Event;
+
   
   p1Event = p1Button.handle();
   if (!gameOver && p1Event == BUTTON_SHORT) {
@@ -178,59 +180,52 @@ void loop()
     numServes = 0;
     showScore();
   }
-  
+
   delay(20);
 }
 
+void showP1Score(int score, boolean serve) {
+  int onesIndex = score % 10;
+  int tensIndex = score / 10;
+
+  int ones = DigitBytes[onesIndex];
+  int tens = DigitBytes[tensIndex];
+
+  if (serve) {
+    tens |= 0x80;
+  }
+  
+  digitalWrite(LATCH, LOW);
+  shiftOut(DATA, CLK, MSBFIRST, ones);
+  shiftOut(DATA, CLK, MSBFIRST, tens);
+  digitalWrite(LATCH, HIGH);
+}
+
+
 void showScore()
 {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Player 1");
-  lcd.setCursor(13, 0);
-  lcd.print(p1Score);
-  
-  
-  lcd.setCursor(0, 1);
-  lcd.print("Player 2");
-  lcd.setCursor(13, 1);
-  lcd.print(p2Score);
-  
   if (numServes == 2) {
     numServes = 0;
     currentServe = currentServe == 0 ? 1 : 0;
   }
-  
+
   if (currentServe == 0) {
-    lcd.setCursor(15, 0);
+    showP1Score(p1Score, true);
   } else {
-    lcd.setCursor(15, 1);
+    showP1Score(p1Score, false);
   }
-  lcd.print("*");
-  
-  Serial.print("P1: ");
-  Serial.print(p1Score);
-  Serial.print("  P2: ");
-  Serial.println(p2Score);
 }
 
 void checkForWinner()
 {
   if ((p1Score >= 11 || p2Score >= 11) && abs(p1Score - p2Score) >= 2) {
 
-    Serial.print("*** WINNER ***   ");
     if (p1Score > p2Score) {
-      Serial.print("P1");
-      lcd.setCursor(10, 0);
-      lcd.print("WINNER");
+      p1Win = true;
     } else {
-      Serial.print("P2");
-      lcd.setCursor(10, 1);
-      lcd.print("WINNER");
+      p2Win = true;
     }
-    Serial.println("   *** WINNER ***");
     victorySong.play();
-    
     gameOver = 1;
   }
 }
@@ -239,6 +234,8 @@ void resetGame()
 {
   p1Score = 0;
   p2Score = 0;
+  p1Win = false;
+  p2Win = false;
   gameOver = 0;
 }
 
