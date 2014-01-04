@@ -124,10 +124,12 @@ int p1Score = 0;
 int p2Score = 0;
 int currentServe = 0; // p1 = 0, p2 = 1
 int numServes = 0;
+int gameOver = 0;
+int victoryBlinkCounter = 0;
+
 boolean p1Win = false;
 boolean p2Win = false;
-
-int gameOver = 0;
+boolean blinkToggle = true;
 
 Button p1Button(P1PIN);
 Button p2Button(P2PIN);
@@ -146,10 +148,24 @@ void setup()
   victorySong.init();
 }
 
+
 void loop()
 {
   int p1Event, p2Event;
 
+  if (gameOver) {
+    victoryBlinkCounter++;
+
+    if (victoryBlinkCounter == 25) {
+      if (p1Win) {
+        showP1Score(p1Score, blinkToggle);
+      } else {
+        // Blink p2 button
+      }
+      victoryBlinkCounter = 0;
+      blinkToggle = !blinkToggle;
+    }
+  }
   
   p1Event = p1Button.handle();
   if (!gameOver && p1Event == BUTTON_SHORT) {
