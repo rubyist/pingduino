@@ -1,11 +1,13 @@
 #define P1PIN           8
+#define P1LIGHTPIN     12
 #define P2PIN           9
+#define P2LIGHTPIN     13
 #define SPEAKERPIN      6
 #define LONGPRESS_TIME 25
 #define LATCH 4
 #define CLK   3
 #define DATA  2
-#define INACTIVEMILLIS 600000 // 10 minutes
+#define INACTIVEMILLIS 1200000 // 20 minutes
 
 // Seven Segment Display Handling
 byte DigitBytes[10]= {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x67};
@@ -133,6 +135,7 @@ unsigned long lastActivityTime;
 boolean p1Win = false;
 boolean p2Win = false;
 boolean blinkToggle = true;
+boolean sleeping = false;
 
 Button p1Button(P1PIN);
 Button p2Button(P2PIN);
@@ -144,6 +147,12 @@ void setup()
   pinMode(CLK, OUTPUT);
   pinMode(DATA, OUTPUT);
 
+  pinMode(P1LIGHTPIN, OUTPUT);
+  pinMode(P2LIGHTPIN, OUTPUT);
+
+  digitalWrite(P1LIGHTPIN, HIGH);
+  digitalWrite(P2LIGHTPIN, HIGH);
+  
   showScore();
   
   p1Button.init();
@@ -157,10 +166,10 @@ void loop()
 {
   int p1Event, p2Event;
 
-  Serial.println(millis() - lastActivityTime);
-  
   if ((millis() - lastActivityTime) > INACTIVEMILLIS) {
-    shutDownLights();
+    goToSleep();
+  } else {
+    wakeup();
   }
   
   if (gameOver) {
@@ -180,6 +189,9 @@ void loop()
   p1Event = p1Button.handle();
   if (!gameOver && p1Event == BUTTON_SHORT) {
     lastActivityTime = millis();
+    if (sleeping)
+      return;
+
     p1Score++;
     numServes++;
     showScore();
@@ -188,6 +200,9 @@ void loop()
   
   if (gameOver && p1Event == BUTTON_LONG) {
     lastActivityTime = millis();
+    if (sleeping)
+      return;
+
     resetGame();
     currentServe = 0;
     numServes = 0;
@@ -197,6 +212,9 @@ void loop()
   p2Event = p2Button.handle();
   if (!gameOver && p2Event == BUTTON_SHORT) {
     lastActivityTime = millis();
+    if (sleeping)
+      return;
+
     p2Score++;
     numServes++;
     showScore();
@@ -205,6 +223,9 @@ void loop()
   
   if (gameOver && p2Event == BUTTON_LONG) {
     lastActivityTime = millis();
+    if (sleeping)
+      return;
+
     resetGame();
     currentServe = 1;
     numServes = 0;
@@ -246,13 +267,33 @@ void showScore()
   }
 }
 
-void shutDownLights()
+void goToSleep()
 {
+  sleeping = true;
+
+  // Blank p1 score
   digitalWrite(LATCH, LOW);
   shiftOut(DATA, CLK, MSBFIRST, 0x00);
   shiftOut(DATA, CLK, MSBFIRST, 0x00);
   digitalWrite(LATCH, HIGH);
+
+  // Blank p2 score
+
+  // Turn off button lights
+  digitalWrite(P1LIGHTPIN, LOW);
+  digitalWrite(P2LIGHTPIN, LOW);
 }
+
+ void wakeup()
+ {
+   sleeping = false;
+   
+   showScore();
+   
+   digitalWrite(P1LIGHTPIN, HIGH);
+   digitalWrite(P2LIGHTPIN, HIGH);
+ }
+
 
 void checkForWinner()
 {
