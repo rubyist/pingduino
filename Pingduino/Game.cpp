@@ -24,8 +24,12 @@ void Game::updateScore(int p1, int p2) {
   if ((p1 != _p1Score) || (p2 != _p2Score)) {
     _p1Score = p1;
     _p2Score = p2;
+    _serves++;
 
-    // Handle server change
+    if (_serves == 2) {
+      _serves = 0;
+      _server = _server == 1 ? 2 : 1;
+    }
   }
 }
 
