@@ -2,11 +2,11 @@
 #define P2PIN           1
 #define BUTTONLIGHTPIN  4
 #define SPEAKERPIN      9
-#define LONGPRESS_TIME 25
+#define LONGPRESS_TIME  1000
 #define LATCH           7
 #define CLK             6
 #define DATA            5
-#define INACTIVEMILLIS 1200000 // 20 minutes
+#define INACTIVEMILLIS  1200000 // 20 minutes
 
 // Seven Segment Display Handling
 byte DigitBytes[10]= {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x67};
@@ -127,7 +127,7 @@ void p1ButtonPressed()
   if (trackP1Button == 1) {
     trackP1Button = 0;
     unsigned long now = millis();
-    if ((now - p1ButtonChangeMillis) <= 500) {
+    if ((now - p1ButtonChangeMillis) <= LONGPRESS_TIME) {
       // Short press, score
       if (gameOver)
         return;
@@ -159,7 +159,7 @@ void p2ButtonPressed()
   if (trackP2Button == 1) {
     trackP2Button = 0;
     unsigned long now = millis();
-    if ((now - p2ButtonChangeMillis) <= 500) {
+    if ((now - p2ButtonChangeMillis) <= LONGPRESS_TIME) {
       // Short press, score
       if (gameOver)
         return;
@@ -167,7 +167,7 @@ void p2ButtonPressed()
       numServes++;
     } else {
       // Long press, reset
-      currentServe = 0;
+      currentServe = 1;
       requestReset = 1;
     }
   }
@@ -242,11 +242,28 @@ void showScore()
     currentServe = currentServe == 0 ? 1 : 0;
   }
 
+  int p1OnesIndex = p1Score % 10;
+  int p1TensIndex = p1Score / 10;
+  int p1Ones = DigitBytes[p1OnesIndex];
+  int p1Tens = DigitBytes[p1TensIndex];
+  
+  int p2OnesIndex = p2Score % 10;
+  int p2TensIndex = p2Score / 10;
+  int p2Ones = DigitBytes[p2OnesIndex];
+  int p2Tens = DigitBytes[p2TensIndex];
+
   if (currentServe == 0) {
-    showP1Score(p1Score, true);
+    p1Tens |= 0x80;
   } else {
-    showP1Score(p1Score, false);
+    p2Tens |= 0x80;
   }
+  
+  digitalWrite(LATCH, LOW);
+  shiftOut(DATA, CLK, MSBFIRST, p2Ones);
+  shiftOut(DATA, CLK, MSBFIRST, p2Tens);
+  shiftOut(DATA, CLK, MSBFIRST, p1Ones);
+  shiftOut(DATA, CLK, MSBFIRST, p1Tens);
+  digitalWrite(LATCH, HIGH);
 }
 
 void goToSleep()
