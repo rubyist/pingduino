@@ -12,6 +12,7 @@ class Display {
   Display();
   void init();
   void refresh(Game game);
+  void sleep();
 };
 
 #endif

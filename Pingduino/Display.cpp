@@ -34,3 +34,12 @@ void Display::refresh(Game game) {
   shiftOut(DATA, CLK, MSBFIRST, p1Tens);
   digitalWrite(LATCH, HIGH);
 }
+
+void Display::sleep() {
+  digitalWrite(LATCH, LOW);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  digitalWrite(LATCH, HIGH);
+}
