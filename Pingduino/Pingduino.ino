@@ -270,13 +270,13 @@ void goToSleep()
 {
   sleeping = true;
 
-  // Blank p1 score
+  // Blank score
   digitalWrite(LATCH, LOW);
   shiftOut(DATA, CLK, MSBFIRST, 0x00);
   shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
+  shiftOut(DATA, CLK, MSBFIRST, 0x00);
   digitalWrite(LATCH, HIGH);
-
-  // Blank p2 score
 
   // Turn off button lights
   digitalWrite(BUTTONLIGHTPIN, LOW);
