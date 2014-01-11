@@ -128,10 +128,10 @@ void loop()
     }
 
     if (requestReset > 0) {
-      p1Score = p2Score = 0;
-      requestReset = 0;
       game.restart(requestReset);
       victorySong.reset();
+      p1Score = p2Score = 0;
+      requestReset = 0;
     }
   }
   
