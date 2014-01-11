@@ -23,7 +23,6 @@ VictorySong victorySong(SPEAKERPIN);
 
 void setup()
 {
-  Serial.begin(9600);
   // Interrupts for scoring buttons
   attachInterrupt(P1PIN, p1ButtonPressed, CHANGE);
   attachInterrupt(P2PIN, p2ButtonPressed, CHANGE);
@@ -129,7 +128,6 @@ void loop()
     }
 
     if (requestReset > 0) {
-      Serial.println("Game over, requested reset");
       p1Score = p2Score = 0;
       requestReset = 0;
       game.restart(requestReset);

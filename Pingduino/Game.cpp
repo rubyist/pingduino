@@ -23,13 +23,6 @@ void Game::updateScore(int p1, int p2) {
     _p2Score = p2;
     _serves++;
 
-    Serial.print("Updating scores ");
-    Serial.print(_p1Score);
-    Serial.print(" ");
-    Serial.print(_p2Score);
-    Serial.print("   ");
-    Serial.println(over());
-
     if (_serves == 2) {
       _serves = 0;
       _server = _server == 1 ? 2 : 1;
