@@ -9,6 +9,8 @@ class VictorySong {
     VictorySong(int pin);
     void init();
     void play();
+    bool played();
+    void reset();
   
   protected:
     const int pin;
@@ -16,6 +18,7 @@ class VictorySong {
     char *notes;
     int tempo;
     int frequency(char note);
+    bool _played;
 };
 
 #endif

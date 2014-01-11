@@ -122,12 +122,19 @@ void loop()
   // Show the score
   display.refresh(game);
 
-  // Reset the game when requested
-  if (game.over() && requestReset > 0) {
-    Serial.println("Game over, requested reset");
-    p1Score = p2Score = 0;
-    requestReset = 0;
-    game.restart(requestReset);
+  // Handle game over actions
+  if (game.over()) {
+    if (!victorySong.played()) {
+      victorySong.play();
+    }
+
+    if (requestReset > 0) {
+      Serial.println("Game over, requested reset");
+      p1Score = p2Score = 0;
+      requestReset = 0;
+      game.restart(requestReset);
+      victorySong.reset();
+    }
   }
   
   delay(20);
