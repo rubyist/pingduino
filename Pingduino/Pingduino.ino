@@ -1,68 +1,15 @@
-#define P1PIN           8
-#define P1LIGHTPIN     12
-#define P2PIN           9
-#define P2LIGHTPIN     13
-#define SPEAKERPIN      6
+#define P1PIN           0 // Interrupts
+#define P2PIN           1
+#define BUTTONLIGHTPIN  4
+#define SPEAKERPIN      9
 #define LONGPRESS_TIME 25
-#define LATCH 4
-#define CLK   3
-#define DATA  2
+#define LATCH           7
+#define CLK             6
+#define DATA            5
 #define INACTIVEMILLIS 1200000 // 20 minutes
 
 // Seven Segment Display Handling
 byte DigitBytes[10]= {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x67};
-
-// Button handling
-enum { BUTTON_NONE=0, BUTTON_SHORT, BUTTON_LONG};
-
-class Button {
-  public:
-    Button(int pin, int longpress_time=LONGPRESS_TIME);
-    void init();
-    int handle();
-  
-  protected:
-    boolean pressed;
-    int counter;
-    const int pin;
-    const int longpress_time;
-};
-
-Button::Button(int p, int t) : pin(p), longpress_time(t)
-{
-}
-
-void Button::init()
-{
-  pinMode(pin, INPUT);
-  digitalWrite(pin, HIGH);
-  pressed = false;
-  counter = 0;
-}
-
-int Button::handle()
-{
-  int event;
-  int now_pressed = !digitalRead(pin);
-  
-  if (!now_pressed && pressed) {
-    if (counter < longpress_time)
-      event = BUTTON_SHORT;
-    else
-      event = BUTTON_LONG;
-  } else {
-    event = BUTTON_NONE;
-  }
-  
-  if (now_pressed) {
-    ++counter;
-  } else {
-    counter = 0;
-  }
-    
-  pressed = now_pressed;
-  return event;
-}
 
 // Victory Song
 class VictorySong {
@@ -123,55 +70,131 @@ int VictorySong::frequency(char note)
 }
 
 // Game Logics
-int p1Score = 0;
-int p2Score = 0;
-int currentServe = 0; // p1 = 0, p2 = 1
-int numServes = 0;
+volatile int p1Score = 0;
+volatile int p2Score = 0;
+volatile int currentServe = 0; // p1 = 0, p2 = 1
+volatile int requestReset = 0;
+volatile int numServes = 0;
+volatile unsigned long lastActivityTime;
+
 int gameOver = 0;
 int victoryBlinkCounter = 0;
-
-unsigned long lastActivityTime;
 
 boolean p1Win = false;
 boolean p2Win = false;
 boolean blinkToggle = true;
 boolean sleeping = false;
 
-Button p1Button(P1PIN);
-Button p2Button(P2PIN);
 VictorySong victorySong(SPEAKERPIN);
 
 void setup()
 {
+  // Interrupts for scoring buttons
+  attachInterrupt(P1PIN, p1ButtonPressed, CHANGE);
+  attachInterrupt(P2PIN, p2ButtonPressed, CHANGE);
+  
+  // Shift Registers for score display
   pinMode(LATCH, OUTPUT);
   pinMode(CLK, OUTPUT);
   pinMode(DATA, OUTPUT);
 
-  pinMode(P1LIGHTPIN, OUTPUT);
-  pinMode(P2LIGHTPIN, OUTPUT);
-
-  digitalWrite(P1LIGHTPIN, HIGH);
-  digitalWrite(P2LIGHTPIN, HIGH);
+  // LEDs inside the scoring buttons
+  pinMode(BUTTONLIGHTPIN, OUTPUT);
+  digitalWrite(BUTTONLIGHTPIN, HIGH);
   
   showScore();
-  
-  p1Button.init();
-  p2Button.init();
+
   victorySong.init();
   lastActivityTime = millis();
 }
 
+// Intterupt handlers for scoring
+volatile int trackP1Button = 0;
+volatile unsigned long p1ButtonChangeMillis = 0;
+void p1ButtonPressed()
+{
+  lastActivityTime = millis();
+  if (sleeping) {
+    return;
+  }
+  
+  if (trackP1Button == 0) {
+    p1ButtonChangeMillis = millis();
+    trackP1Button = 1;
+    return;
+  }
+
+  if (trackP1Button == 1) {
+    trackP1Button = 0;
+    unsigned long now = millis();
+    if ((now - p1ButtonChangeMillis) <= 500) {
+      // Short press, score
+      if (gameOver)
+        return;
+      p1Score++;
+      numServes++;
+    } else {
+      // Long press, reset
+      currentServe = 0;
+      requestReset = 1;
+    }
+  }
+}
+
+volatile int trackP2Button = 0;
+volatile unsigned long p2ButtonChangeMillis = 0;
+void p2ButtonPressed()
+{
+  lastActivityTime = millis();
+  if (sleeping) {
+    return;
+  }
+
+  if (trackP2Button == 0) {
+    p2ButtonChangeMillis = millis();
+    trackP2Button = 1;
+    return;
+  }
+
+  if (trackP2Button == 1) {
+    trackP2Button = 0;
+    unsigned long now = millis();
+    if ((now - p2ButtonChangeMillis) <= 500) {
+      // Short press, score
+      if (gameOver)
+        return;
+      p2Score++;
+      numServes++;
+    } else {
+      // Long press, reset
+      currentServe = 0;
+      requestReset = 1;
+    }
+  }
+}
 
 void loop()
 {
-  int p1Event, p2Event;
+  // The loop will:
 
+  // Check whether it should go to sleep or wake up
   if ((millis() - lastActivityTime) > INACTIVEMILLIS) {
     goToSleep();
   } else {
     wakeup();
   }
-  
+
+  if (sleeping)
+    return;
+
+  // Show the score
+  showScore();
+
+  // Check for a win state
+  if (!gameOver)
+    checkForWinner();
+
+  // Handle the victory state
   if (gameOver) {
     victoryBlinkCounter++;
 
@@ -185,53 +208,12 @@ void loop()
       blinkToggle = !blinkToggle;
     }
   }
-  
-  p1Event = p1Button.handle();
-  if (!gameOver && p1Event == BUTTON_SHORT) {
-    lastActivityTime = millis();
-    if (sleeping)
-      return;
 
-    p1Score++;
-    numServes++;
-    showScore();
-    checkForWinner();
-  }
-  
-  if (gameOver && p1Event == BUTTON_LONG) {
-    lastActivityTime = millis();
-    if (sleeping)
-      return;
-
+  // Reset the game when requested
+  if (gameOver && requestReset) {
     resetGame();
-    currentServe = 0;
-    numServes = 0;
-    showScore();
   }
   
-  p2Event = p2Button.handle();
-  if (!gameOver && p2Event == BUTTON_SHORT) {
-    lastActivityTime = millis();
-    if (sleeping)
-      return;
-
-    p2Score++;
-    numServes++;
-    showScore();
-    checkForWinner();
-  }
-  
-  if (gameOver && p2Event == BUTTON_LONG) {
-    lastActivityTime = millis();
-    if (sleeping)
-      return;
-
-    resetGame();
-    currentServe = 1;
-    numServes = 0;
-    showScore();
-  }
-
   delay(20);
 }
 
@@ -280,18 +262,19 @@ void goToSleep()
   // Blank p2 score
 
   // Turn off button lights
-  digitalWrite(P1LIGHTPIN, LOW);
-  digitalWrite(P2LIGHTPIN, LOW);
+  digitalWrite(BUTTONLIGHTPIN, LOW);
 }
 
  void wakeup()
  {
+   if (!sleeping)
+     return;
+   
    sleeping = false;
    
    showScore();
    
-   digitalWrite(P1LIGHTPIN, HIGH);
-   digitalWrite(P2LIGHTPIN, HIGH);
+   digitalWrite(BUTTONLIGHTPIN, HIGH);
  }
 
 
@@ -316,6 +299,7 @@ void resetGame()
   p1Win = false;
   p2Win = false;
   gameOver = 0;
+  numServes = 0;
 }
 
 
