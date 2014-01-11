@@ -5,10 +5,7 @@ Game::Game() {
 }
 
 void Game::init() {
-  _p1Score = 0;
-  _p2Score = 0;
-  _server = 1;
-  _serves = 0;
+  restart(1);
 }
 
 int Game::p1Score() { return _p1Score; }
@@ -34,4 +31,8 @@ void Game::updateScore(int p1, int p2) {
 }
 
 void Game::restart(int serve) {
+  _p1Score = 0;
+  _p2Score = 0;
+  _server = 1;
+  _serves = 0;
 }
