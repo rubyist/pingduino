@@ -12,6 +12,7 @@ void VictorySong::init()
   notes = "efg dab bbbbbaagg";
   tempo = 94;
   _played = false;
+  _stop = false;
 }
 
 void VictorySong::play()
@@ -20,6 +21,10 @@ void VictorySong::play()
   int i, duration;
   int beats[] = {1,2,5,3,2,4,2,5,2,2,2,2,3,3,3,3,2};
   for (i = 0; i < songLength; i++) {
+    if (_stop) {
+      break;
+    }
+
     duration = beats[i] * tempo;
     
     if (notes[i] == ' ') {
@@ -32,8 +37,18 @@ void VictorySong::play()
   }
 }
 
+void VictorySong::stop()
+{
+  _stop = true;
+}
+
 bool VictorySong::played() { return _played; }
-void VictorySong::reset() { _played = false; }
+
+void VictorySong::reset()
+{
+  _played = false;
+  _stop = false;
+}
 
 int VictorySong::frequency(char note)
 {

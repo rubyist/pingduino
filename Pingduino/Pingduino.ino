@@ -68,6 +68,7 @@ void p1ButtonPressed()
       p1Score++;
     } else {
       // Long press, reset
+      victorySong.stop();
       requestReset = 1;
     }
   }
@@ -96,6 +97,7 @@ void p2ButtonPressed()
       p2Score++;
     } else {
       // Long press, reset
+      victorySong.stop();
       requestReset = 2;
     }
   }
