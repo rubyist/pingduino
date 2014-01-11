@@ -11,6 +11,8 @@ class Game {
   int p2Score();
   int server();
   bool over();
+  int winner();
+  
   void updateScore(int p1, int p2);
   void restart(int serve);
 
