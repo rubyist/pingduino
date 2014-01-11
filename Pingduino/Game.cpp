@@ -16,6 +16,14 @@ bool Game::over() {
   return (_p1Score >= 11 || _p2Score >= 11) && abs(_p1Score - _p2Score) >= 2;
 }
 
+int Game::winner() {
+  if (!over()) {
+    return 0;
+  }
+
+  return _p1Score > _p2Score ? 1 : 2;
+}
+
 void Game::updateScore(int p1, int p2) {
   // The loop will constantly update the score, so we only act if it has changed
   if ((p1 != _p1Score) || (p2 != _p2Score)) {

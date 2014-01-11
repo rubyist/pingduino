@@ -8,6 +8,8 @@ Display::Display() {
 }
 
 void Display::init() {
+  _blinkToggle = false;
+  _lastBlinkToggle = 0;
 }
 
 void Display::refresh(Game game) {
@@ -21,11 +23,8 @@ void Display::refresh(Game game) {
   int p2Ones = DigitBytes[p2OnesIndex];
   int p2Tens = DigitBytes[p2TensIndex];
 
-  if (game.server() == 1) {
-    p1Tens |= 0x80;
-  } else {
-    p2Tens |= 0x80;
-  }
+  p1Tens |= p1IndicatorState(game);
+  p2Tens |= p2IndicatorState(game);
 
   digitalWrite(LATCH, LOW);
   shiftOut(DATA, CLK, MSBFIRST, p2Ones);
@@ -42,4 +41,38 @@ void Display::sleep() {
   shiftOut(DATA, CLK, MSBFIRST, 0x00);
   shiftOut(DATA, CLK, MSBFIRST, 0x00);
   digitalWrite(LATCH, HIGH);
+}
+
+int Display::p1IndicatorState(Game game) {
+  if (!game.over()) {
+    return game.server() == 1 ? 0x80 : 0x00;
+  }
+
+  if (game.winner() == 1) {
+    return blinkState();
+  }
+  
+  return 0x00;
+}
+
+int Display::p2IndicatorState(Game game) {
+  if (!game.over()) {
+    return game.server() == 2 ? 0x80 : 0x00;
+  }
+
+  if (game.winner() == 2) {
+    return blinkState();
+  }
+
+  return 0x00;
+}
+
+int Display::blinkState() {
+  unsigned long now = millis();
+  if ((now - _lastBlinkToggle) > 750) {
+    _lastBlinkToggle = now;
+    _blinkToggle = !_blinkToggle;
+  }
+
+  return _blinkToggle == 0 ? 0x00 : 0x80;
 }
