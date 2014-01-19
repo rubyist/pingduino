@@ -390,13 +390,49 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="supply2">
+<description>&lt;b&gt;Supply Symbols&lt;/b&gt;&lt;p&gt;
+GND, VCC, 0V, +5V, -5V, etc.&lt;p&gt;
+Please keep in mind, that these devices are necessary for the
+automatic wiring of the supply signals.&lt;p&gt;
+The pin name defined in the symbol is identical to the net which is to be wired automatically.&lt;p&gt;
+In this library the device names are the same as the pin names of the symbols, therefore the correct signal names appear next to the supply symbols in the schematic.&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+</packages>
+<symbols>
+<symbol name="GND">
+<wire x1="-1.27" y1="0" x2="1.27" y2="0" width="0.254" layer="94"/>
+<wire x1="1.27" y1="0" x2="0" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="0" y1="-1.27" x2="-1.27" y2="0" width="0.254" layer="94"/>
+<text x="-1.905" y="-3.175" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="GND" x="0" y="2.54" visible="off" length="short" direction="sup" rot="R270"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="GND" prefix="SUPPLY">
+<description>&lt;b&gt;SUPPLY SYMBOL&lt;/b&gt;</description>
+<gates>
+<gate name="GND" symbol="GND" x="0" y="0"/>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
 <variantdefs>
 </variantdefs>
 <classes>
-<class number="0" name="default" width="0" drill="0">
+<class number="0" name="default" width="0.3048" drill="0.508">
+<clearance class="0" value="0.254"/>
 </class>
 </classes>
 <parts>
@@ -404,6 +440,7 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 <part name="SW" library="wirepad" deviceset="2,15/1,0" device=""/>
 <part name="LT" library="wirepad" deviceset="2,15/1,0" device=""/>
 <part name="GND" library="wirepad" deviceset="2,15/1,0" device=""/>
+<part name="SUPPLY1" library="supply2" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -413,7 +450,8 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 <instance part="JP1" gate="G$1" x="55.88" y="40.64"/>
 <instance part="SW" gate="1" x="66.04" y="38.1" rot="R180"/>
 <instance part="LT" gate="1" x="71.12" y="40.64" rot="R180"/>
-<instance part="GND" gate="1" x="78.74" y="43.18" rot="R180"/>
+<instance part="GND" gate="1" x="83.82" y="43.18" rot="R180"/>
+<instance part="SUPPLY1" gate="GND" x="76.2" y="40.64"/>
 </instances>
 <busses>
 </busses>
@@ -432,11 +470,14 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 <pinref part="SW" gate="1" pin="P"/>
 </segment>
 </net>
-<net name="N$3" class="0">
+<net name="GND" class="0">
 <segment>
 <pinref part="JP1" gate="G$1" pin="SLEEVE"/>
 <pinref part="GND" gate="1" pin="P"/>
-<wire x1="60.96" y1="43.18" x2="76.2" y2="43.18" width="0.1524" layer="91"/>
+<wire x1="60.96" y1="43.18" x2="81.28" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="SUPPLY1" gate="GND" pin="GND"/>
+<junction x="81.28" y="43.18"/>
+<wire x1="81.28" y1="43.18" x2="76.2" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
