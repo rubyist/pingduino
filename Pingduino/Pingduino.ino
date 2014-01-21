@@ -19,7 +19,7 @@ boolean sleeping = false;
 
 class VictorySong {
   public:
-    VictorySong(int pin);
+    VictorySong();
     void init();
     void play();
     bool played();
@@ -27,7 +27,6 @@ class VictorySong {
     void stop();
   
   protected:
-    const int pin;
     bool _played;
     bool _stop;
     bool _initialized;
@@ -40,7 +39,7 @@ class VictorySong {
     WaveHC wave;
 };
 
-VictorySong::VictorySong(int p) : pin(p)
+VictorySong::VictorySong()
 {
 }
 
@@ -130,7 +129,7 @@ void VictorySong::reset()
 
 Game game;
 Display display;
-VictorySong victorySong(2);
+VictorySong victorySong;
 
 void setup()
 {
