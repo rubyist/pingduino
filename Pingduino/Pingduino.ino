@@ -1,3 +1,5 @@
+#include <Adafruit_NeoPixel.h>
+
 #include "Game.h"
 #include "Display.h"
 #include "WaveUtil.h"
@@ -139,11 +141,6 @@ void setup()
   attachInterrupt(P1PIN, p1ButtonPressed, CHANGE);
   attachInterrupt(P2PIN, p2ButtonPressed, CHANGE);
   
-  // Shift Registers for score display
-  pinMode(LATCH, OUTPUT);
-  pinMode(CLK, OUTPUT);
-  pinMode(DATA, OUTPUT);
-
   // LEDs inside the scoring buttons
   pinMode(BUTTONLIGHTPIN, OUTPUT);
   digitalWrite(BUTTONLIGHTPIN, HIGH);

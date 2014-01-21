@@ -1,11 +1,10 @@
 #ifndef Display_h
 #define Display_h
 
-#define LATCH           7
-#define CLK             6
-#define DATA            5
+#define DATAPIN 9
 
 #include "Game.h"
+#include <Adafruit_NeoPixel.h>
 
 class Display {
  public:
@@ -18,6 +17,7 @@ class Display {
   bool _blinkToggle;
   unsigned long _lastBlinkToggle;
 
+  void showDigit(int d, int offset);
   int p1IndicatorState(Game game);
   int p2IndicatorState(Game game);
   int blinkState();
