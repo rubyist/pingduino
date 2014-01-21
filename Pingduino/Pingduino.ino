@@ -27,7 +27,7 @@ class VictorySong {
     void stop();
   
   protected:
-    bool _played;
+    volatile bool _played;
     bool _stop;
     bool _initialized;
 
