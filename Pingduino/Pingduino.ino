@@ -135,6 +135,8 @@ VictorySong victorySong(2);
 
 void setup()
 {
+  Serial.begin(9600);
+  
   // Interrupts for scoring buttons
   attachInterrupt(P1PIN, p1ButtonPressed, CHANGE);
   attachInterrupt(P2PIN, p2ButtonPressed, CHANGE);
