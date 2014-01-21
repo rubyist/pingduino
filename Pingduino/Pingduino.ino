@@ -74,11 +74,6 @@ void VictorySong::init()
     return;
   }
 
-  if (!root.openRoot(vol)) {
-    Serial.println("Can't open root directory");
-    _initialized = false;
-    return;
-  }
   _initialized = true;
 }
 
@@ -91,9 +86,13 @@ void VictorySong::play()
   
   // Grab the first wav file and play it
   FatReader file;
+
+  if (!root.openRoot(vol)) {
+    Serial.println("Can't open root directory");
+    return;
+  }
+
   while (root.readDir(dirBuf) > 0) {
-    Serial.println(*dirBuf.name);
-    
     if (dirBuf.name[0] == '.')
       continue;
     
@@ -108,8 +107,7 @@ void VictorySong::play()
         while(wave.isplaying) {
           delay(100);
         }
-      } else {
-        Serial.println("Failed to create wav");
+        return;
       }
     }
   }  
@@ -118,6 +116,7 @@ void VictorySong::play()
 void VictorySong::stop()
 {
   _stop = true;
+  wave.stop();
 }
 
 bool VictorySong::played() { return _played; }
@@ -179,9 +178,11 @@ void p1ButtonPressed()
     unsigned long now = millis();
     if ((now - p1ButtonChangeMillis) <= LONGPRESS_TIME) {
       // Short press, score
+      Serial.println("Score p1");
       p1Score++;
     } else {
       // Long press, reset
+      Serial.println("Reset p1");
       victorySong.stop();
       requestReset = 1;
     }
