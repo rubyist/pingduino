@@ -2,19 +2,36 @@
 #include "Display.h"
 #include <Adafruit_NeoPixel.h>
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(42, DATAPIN, NEO_GRB + NEO_KHZ800);
+#define DISPLAYCOLOR 0x000005
+#define LEDSPERSEG   2
+#define DATAPIN 8
 
-unsigned long DigitBytes[] = {
- 0x0003FFFF, // 0
- 0x000001F8, // 1
- 0x001C7E3F, // 2
- 0x001C0FFF, // 3
- 0x001F81F8, // 4
- 0x001F8FC7, // 5
- 0x001FFFC7, // 6
- 0x000001FF, // 7
- 0x001FFFFF, // 8
- 0x001F81FF  // 9
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(84, DATAPIN, NEO_GRB + NEO_KHZ800);
+
+// unsigned long DigitBytes[] = {
+//  0x0003FFFF, // 0
+//  0x000001F8, // 1
+//  0x001C7E3F, // 2
+//  0x001C0FFF, // 3
+//  0x001F81F8, // 4
+//  0x001F8FC7, // 5
+//  0x001FFFC7, // 6
+//  0x000001FF, // 7
+//  0x001FFFFF, // 8
+//  0x001F81FF  // 9
+// };
+
+int DigitBytes[] = {
+  0x0FFF,
+  0x000F,
+  0x33CF,
+  0x30FF,
+  0x3C3C,
+  0x3CF3,
+  0x3FF0,
+  0x003F,
+  0x3FFF,
+  0x3C3F
 };
 
 Display::Display() {
@@ -35,16 +52,20 @@ void Display::refresh(Game game) {
   int p2Tens = game.p2Score() / 10;
 
   // Player 1
-  showDigit(p1Ones, 21);
   showDigit(p1Tens, 0);
+  showDigit(p1Ones, 7 * LEDSPERSEG);
+
+  // Player 2
+  showDigit(p2Tens, 2 * (7 * LEDSPERSEG));
+  showDigit(p2Ones, 3 * (7 * LEDSPERSEG));
 }
 
 void Display::showDigit(int d, int offset) {
-  unsigned long digit = DigitBytes[d];
+  int digit = DigitBytes[d];
 
-  for (int i = offset; i < offset + 21; i++) {
+  for (int i = offset; i < offset + (7 * LEDSPERSEG); i++) {
     if (digit & 1) {
-      strip.setPixelColor(i, 0x000088);
+      strip.setPixelColor(i, DISPLAYCOLOR);
     } else {
       strip.setPixelColor(i, 0x000000);
     }
@@ -54,7 +75,7 @@ void Display::showDigit(int d, int offset) {
 }
 
 void Display::sleep() {
-  for (int i = 0; i < 42; i++) {
+  for (int i = 0; i < 4 * (7 * LEDSPERSEG); i++) {
     strip.setPixelColor(i, 0x000000);
   }
   strip.show();

@@ -1,8 +1,6 @@
 #ifndef Display_h
 #define Display_h
 
-#define DATAPIN 9
-
 #include "Game.h"
 #include <Adafruit_NeoPixel.h>
 
