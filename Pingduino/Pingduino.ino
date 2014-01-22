@@ -1,3 +1,4 @@
+#include <Adafruit_NeoPixel.h>
 #include "WaveUtil.h"
 #include "WaveHC.h"
 
@@ -7,7 +8,6 @@
 
 #define P1PIN           0 // Interrupts
 #define P2PIN           1
-#define BUTTONLIGHTPIN  4
 #define LONGPRESS_TIME  1000
 #define INACTIVEMILLIS  1200000 // 20 minutes
 
@@ -26,19 +26,11 @@ VictorySong victorySong;
 void setup()
 {
   Serial.begin(9600);
+  Serial.println("Initializing");
   
   // Interrupts for scoring buttons
   attachInterrupt(P1PIN, p1ButtonPressed, CHANGE);
   attachInterrupt(P2PIN, p2ButtonPressed, CHANGE);
-  
-  // Shift Registers for score display
-  pinMode(LATCH, OUTPUT);
-  pinMode(CLK, OUTPUT);
-  pinMode(DATA, OUTPUT);
-
-  // LEDs inside the scoring buttons
-  pinMode(BUTTONLIGHTPIN, OUTPUT);
-  digitalWrite(BUTTONLIGHTPIN, HIGH);
   
   victorySong.init();
   game.init();
@@ -100,9 +92,11 @@ void p2ButtonPressed()
     unsigned long now = millis();
     if ((now - p2ButtonChangeMillis) <= LONGPRESS_TIME) {
       // Short press, score
+      Serial.println("Score p2");
       p2Score++;
     } else {
       // Long press, reset
+      Serial.println("Reset p2");
       victorySong.stop();
       requestReset = 2;
     }
@@ -132,9 +126,10 @@ void loop()
   // Handle game over actions
   if (game.over()) {
     if (!victorySong.played()) {
+      Serial.println("Playing victory song");
       victorySong.play();
     }
-
+    
     if (requestReset > 0) {
       game.restart(requestReset);
       victorySong.reset();
@@ -150,7 +145,6 @@ void goToSleep()
 {
   sleeping = true;
   display.sleep();
-  digitalWrite(BUTTONLIGHTPIN, LOW);
 }
 
  void wakeup()
@@ -159,6 +153,4 @@ void goToSleep()
      return;
    
    sleeping = false;
-   
-   digitalWrite(BUTTONLIGHTPIN, HIGH);
  }
