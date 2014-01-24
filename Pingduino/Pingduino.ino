@@ -102,7 +102,7 @@ void p2DecrementScore() {
     Serial.println("Score decrement p2");
     p2Score--;
   }
-
+}
 
 void loop()
 {
