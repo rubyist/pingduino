@@ -34,9 +34,11 @@ void setup()
   
   p1Button.setPressCallback(p1ButtonPressed);
   p1Button.setLongPressCallback(p1ResetRequest);
-
+  p1Button.setDoublePressCallback(p1DecrementScore);
+  
   p2Button.setPressCallback(p2ButtonPressed);
   p2Button.setLongPressCallback(p2ResetRequest);
+  p2Button.setDoublePressCallback(p2DecrementScore);
 
   victorySong.init();
   game.init();
@@ -49,9 +51,7 @@ void setup()
 void p1ButtonPressed()
 {
   lastActivityTime = millis();
-  if (sleeping) {
-    return;
-  }
+  if (sleeping) return;
   
   Serial.println("Score p1");
   p1Score++;
@@ -59,17 +59,27 @@ void p1ButtonPressed()
 
 void p1ResetRequest()
 {
+  lastActivityTime = millis();
+  if (sleeping) return;
+
   Serial.println("Reset p1");
-  victorySong.stop();
   requestReset = 1;
+}
+
+void p1DecrementScore() {
+  lastActivityTime = millis();
+  if (sleeping) return;
+
+  if (p1Score > 0) {
+    Serial.println("Score decrement p1");
+    p1Score--;
+  }
 }
 
 void p2ButtonPressed()
 {
   lastActivityTime = millis();
-  if (sleeping) {
-    return;
-  }
+  if (sleeping) return;
   
   Serial.println("Score p2");
   p2Score++;
@@ -77,10 +87,21 @@ void p2ButtonPressed()
 
 void p2ResetRequest()
 {
+  lastActivityTime = millis();
+  if (sleeping) return;
+
   Serial.println("Reset p2");
-  victorySong.stop();
   requestReset = 2;
 }
+
+void p2DecrementScore() {
+  lastActivityTime = millis();
+  if (sleeping) return;
+
+  if (p2Score > 0) {
+    Serial.println("Score decrement p2");
+    p2Score--;
+  }
 
 
 void loop()
