@@ -9,7 +9,7 @@
 #define P1PIN           2
 #define P2PIN           3
 #define LONGPRESS_TIME  1000
-#define INACTIVEMILLIS  10000 // 1200000 // 20 minutes
+#define INACTIVEMILLIS  1200000 // 20 minutes
 
 // Game Logics
 volatile int p1Score = 0;
