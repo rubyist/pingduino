@@ -129,13 +129,11 @@ void loop()
   // Show the score
   display.refresh(game);
 
-  // Handle game over actions
-  if (game.over()) {
-    if (requestReset > 0) {
-      game.restart(requestReset);
-      p1Score = p2Score = 0;
-      requestReset = 0;
-    }
+  // Handle game reset
+  if (requestReset > 0) {
+    game.restart(requestReset);
+    p1Score = p2Score = 0;
+    requestReset = 0;
   }
   
   delay(20);
