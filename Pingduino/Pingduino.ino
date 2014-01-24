@@ -2,12 +2,13 @@
 #include "WaveUtil.h"
 #include "WaveHC.h"
 
+#include "Button.h"
 #include "Game.h"
 #include "Display.h"
 #include "VictorySong.h"
 
-#define P1PIN           0 // Interrupts
-#define P2PIN           1
+#define P1PIN           2
+#define P2PIN           3
 #define LONGPRESS_TIME  1000
 #define INACTIVEMILLIS  1200000 // 20 minutes
 
@@ -19,6 +20,9 @@ volatile unsigned long lastActivityTime;
 
 boolean sleeping = false;
 
+Button p1Button(P1PIN);
+Button p2Button(P2PIN);
+
 Game game;
 Display display;
 VictorySong victorySong;
@@ -28,10 +32,12 @@ void setup()
   Serial.begin(9600);
   Serial.println("Initializing");
   
-  // Interrupts for scoring buttons
-  attachInterrupt(P1PIN, p1ButtonPressed, CHANGE);
-  attachInterrupt(P2PIN, p2ButtonPressed, CHANGE);
-  
+  p1Button.setPressCallback(p1ButtonPressed);
+  p1Button.setLongPressCallback(p1ResetRequest);
+
+  p2Button.setPressCallback(p2ButtonPressed);
+  p2Button.setLongPressCallback(p2ResetRequest);
+
   victorySong.init();
   game.init();
   display.init();
@@ -40,9 +46,6 @@ void setup()
   lastActivityTime = millis();
 }
 
-// Intterupt handlers for scoring
-volatile int trackP1Button = 0;
-volatile unsigned long p1ButtonChangeMillis = 0;
 void p1ButtonPressed()
 {
   lastActivityTime = millis();
@@ -50,58 +53,35 @@ void p1ButtonPressed()
     return;
   }
   
-  if (trackP1Button == 0) {
-    p1ButtonChangeMillis = millis();
-    trackP1Button = 1;
-    return;
-  }
-
-  if (trackP1Button == 1) {
-    trackP1Button = 0;
-    unsigned long now = millis();
-    if ((now - p1ButtonChangeMillis) <= LONGPRESS_TIME) {
-      // Short press, score
-      Serial.println("Score p1");
-      p1Score++;
-    } else {
-      // Long press, reset
-      Serial.println("Reset p1");
-      victorySong.stop();
-      requestReset = 1;
-    }
-  }
+  Serial.println("Score p1");
+  p1Score++;
 }
 
-volatile int trackP2Button = 0;
-volatile unsigned long p2ButtonChangeMillis = 0;
+void p1ResetRequest()
+{
+  Serial.println("Reset p1");
+  victorySong.stop();
+  requestReset = 1;
+}
+
 void p2ButtonPressed()
 {
   lastActivityTime = millis();
   if (sleeping) {
     return;
   }
-
-  if (trackP2Button == 0) {
-    p2ButtonChangeMillis = millis();
-    trackP2Button = 1;
-    return;
-  }
-
-  if (trackP2Button == 1) {
-    trackP2Button = 0;
-    unsigned long now = millis();
-    if ((now - p2ButtonChangeMillis) <= LONGPRESS_TIME) {
-      // Short press, score
-      Serial.println("Score p2");
-      p2Score++;
-    } else {
-      // Long press, reset
-      Serial.println("Reset p2");
-      victorySong.stop();
-      requestReset = 2;
-    }
-  }
+  
+  Serial.println("Score p2");
+  p2Score++;
 }
+
+void p2ResetRequest()
+{
+  Serial.println("Reset p2");
+  victorySong.stop();
+  requestReset = 2;
+}
+
 
 void loop()
 {
@@ -117,6 +97,10 @@ void loop()
   if (sleeping)
     return;
 
+  // Poll the scoring buttons
+  p1Button.tick();
+  p2Button.tick();
+  
   // Update the game
   game.updateScore(p1Score, p2Score);
 
