@@ -9,7 +9,7 @@
 #define P1PIN           2
 #define P2PIN           3
 #define LONGPRESS_TIME  1000
-#define INACTIVEMILLIS  1200000 // 20 minutes
+#define INACTIVEMILLIS  10000 // 1200000 // 20 minutes
 
 // Game Logics
 volatile int p1Score = 0;
@@ -108,6 +108,10 @@ void p2DecrementScore() {
 void loop()
 {
   // The loop will:
+
+  // Poll the scoring buttons
+  p1Button.tick();
+  p2Button.tick();
   
   // Check whether it should go to sleep or wake up
   if ((millis() - lastActivityTime) > INACTIVEMILLIS) {
@@ -119,10 +123,6 @@ void loop()
   if (sleeping)
     return;
 
-  // Poll the scoring buttons
-  p1Button.tick();
-  p2Button.tick();
-  
   // Update the game
   game.updateScore(p1Score, p2Score);
 
@@ -141,14 +141,16 @@ void loop()
 
 void goToSleep()
 {
+  if (sleeping) return;
   sleeping = true;
   display.sleep();
+  Serial.println("Going to sleep.");
 }
 
  void wakeup()
  {
-   if (!sleeping)
-     return;
+   if (!sleeping) return;
    
    sleeping = false;
+   Serial.println("Waking up.");
  }
