@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "Button.h"
 
-#define PRESSTIME      100
+#define PRESSTIME      500
 #define LONGPRESSTIME 1000 
 
 enum ButtonState {
@@ -38,13 +38,13 @@ void Button::tick() {
   case Waiting:
     if (button == LOW) {
       _state = PressCount;
-    } else if ((button == HIGH) && (now > _startTime + 1000)) {
+    } else if ((button == HIGH) && (now > _startTime + LONGPRESSTIME)) {
       _state = LongPressWait;
     }
     break;
     
   case PressCount:
-    if (now > _startTime + 400) {
+    if (now > _startTime + PRESSTIME) {
       if (_pressCallback) _pressCallback();
       _state = Start;
     } else if (button == HIGH) {
