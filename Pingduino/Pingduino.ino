@@ -5,7 +5,6 @@
 #include "Button.h"
 #include "Game.h"
 #include "Display.h"
-#include "VictorySong.h"
 
 #define P1PIN           2
 #define P2PIN           3
@@ -25,12 +24,10 @@ Button p2Button(P2PIN);
 
 Game game;
 Display display;
-VictorySong victorySong;
 
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("Initializing");
   
   p1Button.setPressCallback(p1ButtonPressed);
   p1Button.setLongPressCallback(p1ResetRequest);
@@ -40,18 +37,19 @@ void setup()
   p2Button.setLongPressCallback(p2ResetRequest);
   p2Button.setDoublePressCallback(p2DecrementScore);
 
-  victorySong.init();
   game.init();
   display.init();
   display.refresh(game);
   
   lastActivityTime = millis();
+  Serial.println("Initialized");
 }
 
 void p1ButtonPressed()
 {
   lastActivityTime = millis();
   if (sleeping) return;
+  if (game.over()) return;
   
   Serial.println("Score p1");
   p1Score++;
@@ -69,6 +67,7 @@ void p1ResetRequest()
 void p1DecrementScore() {
   lastActivityTime = millis();
   if (sleeping) return;
+  if (game.over()) return;
 
   if (p1Score > 0) {
     Serial.println("Score decrement p1");
@@ -80,6 +79,7 @@ void p2ButtonPressed()
 {
   lastActivityTime = millis();
   if (sleeping) return;
+  if (game.over()) return;
   
   Serial.println("Score p2");
   p2Score++;
@@ -97,6 +97,7 @@ void p2ResetRequest()
 void p2DecrementScore() {
   lastActivityTime = millis();
   if (sleeping) return;
+  if (game.over()) return;
 
   if (p2Score > 0) {
     Serial.println("Score decrement p2");
@@ -107,7 +108,7 @@ void p2DecrementScore() {
 void loop()
 {
   // The loop will:
-
+  
   // Check whether it should go to sleep or wake up
   if ((millis() - lastActivityTime) > INACTIVEMILLIS) {
     goToSleep();
@@ -130,14 +131,8 @@ void loop()
 
   // Handle game over actions
   if (game.over()) {
-    if (!victorySong.played()) {
-      Serial.println("Playing victory song");
-      victorySong.play();
-    }
-    
     if (requestReset > 0) {
       game.restart(requestReset);
-      victorySong.reset();
       p1Score = p2Score = 0;
       requestReset = 0;
     }
