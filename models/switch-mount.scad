@@ -9,7 +9,7 @@
 button_radius = 49;
 
 // The radius of the hole the button back needs.
-hole_radius = 14.5;
+hole_radius = 11.5;
 
 // There's a bar on the front of my table that is 40mm high
 table_padding = 40;
