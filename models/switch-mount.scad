@@ -193,6 +193,7 @@ module mount_screws() {
     cylinder(r=2, h=wall_thickness+2);
 }
 
+// Body
 bottom();
 difference() {
     sides();
@@ -200,8 +201,9 @@ difference() {
     mount_screws();
 }
 
+// Cover
 // difference() {
 //     translate([0, 0, mount_depth-wall_thickness])
 //     cover();
-//     screws();
+//     cover_screws();
 // }
