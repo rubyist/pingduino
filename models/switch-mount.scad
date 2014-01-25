@@ -12,13 +12,29 @@ mount_height = table_padding + extra_padding + button_radius + hole_radius + bot
 mount_depth = 50;
 mount_width = (hole_radius * 2) + (bottom_padding * 2);
 
+font = "monaco.dxf";
 
-// difference() {
-//     cube(size=[mount_width, mount_height, mount_depth]);
-
-//     translate([wall_thickness, wall_thickness, wall_thickness])
-//     cube(size=[mount_width - (wall_thickness*2), mount_height, mount_depth]);
+// Body
+// union() {
+//     difference() {
+//         bottom();
+//         name();
+//     }
+    
+//     difference() {
+//         sides();
+//         cover_screws();
+//         mount_screws();
+//     }
 // }
+
+// Cover
+difference() {
+    translate([0, 0, mount_depth-wall_thickness])
+    cover();
+    cover_screws();
+    project();
+}
 
 module screw_mount() {
     difference() {
@@ -193,17 +209,40 @@ module mount_screws() {
     cylinder(r=2, h=wall_thickness+2);
 }
 
-// Body
-bottom();
-difference() {
-    sides();
-    cover_screws();
-    mount_screws();
+// Text
+module letter(l, h=100, i=0) {
+    union() {
+        linear_extrude(height=h) import(font, layer=l[i]);
+        translate([dxf_dim(file=font, name="advx", layer=l[i]), dxf_dim(file=font, name="advy", layer=l[i]), 0])
+        child();
+    }
 }
 
-// Cover
-// difference() {
-//     translate([0, 0, mount_depth-wall_thickness])
-//     cover();
-//     cover_screws();
-// }
+module word(wrd, h=100, i=0) {
+    if (i < len(wrd)) {
+        letter(wrd, h, i) word(wrd, h, i+1);
+    } else {
+        child();
+    }
+}
+
+
+module name() {
+    translate([18.5, mount_height - 20, wall_thickness-1.5])
+    scale(0.002)
+    word("Scott", 1000);
+    
+    translate([46.5, mount_height - 20, wall_thickness-1.5])
+    scale(0.002)
+    word("Barron", 1000);
+    
+    translate([34.5, mount_height - 35, wall_thickness-1.5])
+    scale(0.002)
+    word("2014", 1000);
+}
+
+module project() {
+    translate([22, mount_height-20, mount_depth-1.5])
+    scale(0.002)
+     word("Pingduino", 1000);
+}
