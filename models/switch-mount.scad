@@ -32,6 +32,7 @@ module screw_mount() {
 
 
 module bottom() {
+    difference() {
     hull() {
         // lower left
         translate([wall_thickness*2, wall_thickness*2, 0])
@@ -48,6 +49,15 @@ module bottom() {
         // upper left
         translate([0, mount_height-(wall_thickness*2), 0])
         cube(size=[wall_thickness*2, wall_thickness*2, wall_thickness]);
+    }
+
+    union() {
+        translate([mount_width/2, wall_thickness+7.5, -1])
+        cylinder(r=3, h=wall_thickness+2);
+
+        translate([mount_width/2-4.5, wall_thickness+7.5-2.5, wall_thickness-.8])
+        cube(size=[9, 5, 1]);
+    }
     }
 }
 
@@ -95,24 +105,24 @@ module sides() {
         cube([mount_width-(wall_thickness*2), mount_height-(wall_thickness*2), mount_depth]);
 
         union() {
-            translate([wall_thickness, wall_thickness, mount_depth-6])
+            translate([wall_thickness, wall_thickness, mount_depth-6-wall_thickness])
             cylinder(r=9, h=6);
-            translate([wall_thickness, wall_thickness, mount_depth-10])
+            translate([wall_thickness, wall_thickness, mount_depth-10-wall_thickness])
             cylinder(r1=3, r2=9, h=4);
 
-            translate([mount_width-wall_thickness, wall_thickness, mount_depth-6])
+            translate([mount_width-wall_thickness, wall_thickness, mount_depth-6-wall_thickness])
             cylinder(r=9, h=6);
-            translate([mount_width-wall_thickness, wall_thickness, mount_depth-10])
+            translate([mount_width-wall_thickness, wall_thickness, mount_depth-10-wall_thickness])
             cylinder(r1=3, r2=9, h=4);
             
-            translate([mount_width-wall_thickness, mount_height-wall_thickness, mount_depth-6])
+            translate([mount_width-wall_thickness, mount_height-wall_thickness, mount_depth-6-wall_thickness])
             cylinder(r=9, h=6);
-            translate([mount_width-wall_thickness, mount_height-wall_thickness, mount_depth-10])
+            translate([mount_width-wall_thickness, mount_height-wall_thickness, mount_depth-10-wall_thickness])
             cylinder(r1=3, r2=9, h=4);
 
-            translate([wall_thickness, mount_height-wall_thickness, mount_depth-6])
+            translate([wall_thickness, mount_height-wall_thickness, mount_depth-6-wall_thickness])
             cylinder(r=9, h=6);
-            translate([wall_thickness, mount_height-wall_thickness, mount_depth-10])
+            translate([wall_thickness, mount_height-wall_thickness, mount_depth-10-wall_thickness])
             cylinder(r1=3, r2=9, h=4);
         }
     }
@@ -149,8 +159,28 @@ module cover() {
     // cylinder(r=button_radius, h=20);
 }
 
-bottom();
-sides();
+module screws() {
+    translate([wall_thickness+3.5, wall_thickness+3.5, mount_depth/2])
+    cylinder(r=1.5, h=30);
 
-translate([0, 0, mount_depth + 15])
-cover();
+    translate([mount_width-wall_thickness-3.5, wall_thickness+3.5, mount_depth/2])
+    cylinder(r=1.5, h=30);
+
+    translate([mount_width-wall_thickness-3.5, mount_height-wall_thickness-3.5, mount_depth/2])
+    cylinder(r=1.5, h=30);
+
+    translate([wall_thickness+3.5, mount_height-wall_thickness-3.5, mount_depth/2])
+    cylinder(r=1.5, h=30);
+}
+
+bottom();
+difference() {
+    sides();
+    screws();
+}
+
+// difference() {
+//     translate([0, 0, mount_depth-wall_thickness])
+//     cover();
+//     screws();
+// }
