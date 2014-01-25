@@ -15,26 +15,26 @@ mount_width = (hole_radius * 2) + (bottom_padding * 2);
 font = "monaco.dxf";
 
 // Body
-// union() {
-//     difference() {
-//         bottom();
-//         name();
-//     }
+union() {
+    difference() {
+        bottom();
+        name();
+    }
     
-//     difference() {
-//         sides();
-//         cover_screws();
-//         mount_screws();
-//     }
-// }
+    difference() {
+        sides();
+        cover_screws();
+        mount_screws();
+    }
+}
 
 // Cover
-difference() {
-    translate([0, 0, mount_depth-wall_thickness])
-    cover();
-    cover_screws();
-    project();
-}
+// difference() {
+//     translate([0, 0, mount_depth-wall_thickness])
+//     cover();
+//     cover_screws();
+//     project();
+// }
 
 module screw_mount() {
     difference() {
