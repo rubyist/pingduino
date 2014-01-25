@@ -6,7 +6,7 @@ table_padding = 40;
 extra_padding = 2;
 bottom_padding = 30;
 
-wall_thickness = 4;
+wall_thickness = 3;
 
 mount_height = table_padding + extra_padding + button_radius + hole_radius + bottom_padding;
 mount_depth = 50;
