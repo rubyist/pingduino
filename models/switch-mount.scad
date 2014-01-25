@@ -159,7 +159,7 @@ module cover() {
     // cylinder(r=button_radius, h=20);
 }
 
-module screws() {
+module cover_screws() {
     translate([wall_thickness+3.5, wall_thickness+3.5, mount_depth/2])
     cylinder(r=1.5, h=30);
 
@@ -173,10 +173,31 @@ module screws() {
     cylinder(r=1.5, h=30);
 }
 
+module mount_screws() {
+    spacing = 15;
+    
+    translate([spacing, mount_height, spacing])
+    rotate([90, 0, 0])
+    cylinder(r=2, h=wall_thickness+2);
+
+    translate([spacing, mount_height, mount_depth-spacing])
+    rotate([90, 0, 0])
+    cylinder(r=2, h=wall_thickness+2);
+
+    translate([mount_width-spacing, mount_height, mount_depth-spacing])
+    rotate([90, 0, 0])
+    cylinder(r=2, h=wall_thickness+2);
+
+    translate([mount_width-spacing, mount_height, spacing])
+    rotate([90, 0, 0])
+    cylinder(r=2, h=wall_thickness+2);
+}
+
 bottom();
 difference() {
     sides();
-    screws();
+    cover_screws();
+    mount_screws();
 }
 
 // difference() {
