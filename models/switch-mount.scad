@@ -139,11 +139,21 @@ module sides() {
             translate([wall_thickness, wall_thickness, mount_depth-10-wall_thickness])
             cylinder(r1=3, r2=9, h=4);
 
+            translate([wall_thickness, mount_height/2, mount_depth-6-wall_thickness])
+            cylinder(r=9, h=6);
+            translate([wall_thickness, mount_height/2, mount_depth-10-wall_thickness])
+            cylinder(r1=3, r2=9, h=4);
+
             translate([mount_width-wall_thickness, wall_thickness, mount_depth-6-wall_thickness])
             cylinder(r=9, h=6);
             translate([mount_width-wall_thickness, wall_thickness, mount_depth-10-wall_thickness])
             cylinder(r1=3, r2=9, h=4);
-            
+
+            translate([mount_width-wall_thickness, mount_height/2, mount_depth-6-wall_thickness])
+            cylinder(r=9, h=6);
+            translate([mount_width-wall_thickness, mount_height/2, mount_depth-10-wall_thickness])
+            cylinder(r1=3, r2=9, h=4);
+
             translate([mount_width-wall_thickness, mount_height-wall_thickness, mount_depth-6-wall_thickness])
             cylinder(r=9, h=6);
             translate([mount_width-wall_thickness, mount_height-wall_thickness, mount_depth-10-wall_thickness])
