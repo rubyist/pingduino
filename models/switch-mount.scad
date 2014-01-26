@@ -60,16 +60,6 @@ difference() {
 // You shouldn't have to configure anything below this, except maybe text
 // attributes at the bottom if you're putting your own text in it.
 
-module screw_mount() {
-    difference() {
-        cube([10, wall_thickness, 10]);
-
-        rotate([90, 0, 0])
-        translate([5, 5, -wall_thickness-1])
-        cylinder(r=2, h=wall_thickness+2);
-    }
-}
-
 module bottom() {
     difference() {
     hull() {
