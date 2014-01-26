@@ -35,8 +35,9 @@ font = "monaco.dxf";
 union() {
     difference() {
         bottom();
-        // You don't have to put my name in your box ;)
-        name();
+        // You can inscribe something here. I print the box at lower resolution (.3mm), it
+        // comes out OK but not very good looking. Higher res looks better.
+        // name();
     }
     
     difference() {
@@ -253,15 +254,7 @@ module word(wrd, h=100, i=0) {
 module name() {
     translate([18.5, mount_height - 20, wall_thickness-1.5])
     scale(0.002)
-    word("Scott", 1000);
-    
-    translate([46.5, mount_height - 20, wall_thickness-1.5])
-    scale(0.002)
-    word("Barron", 1000);
-    
-    translate([34.5, mount_height - 35, wall_thickness-1.5])
-    scale(0.002)
-    word("2014", 1000);
+    word("YourTextHere", 1000);
 }
 
 module project() {
