@@ -53,6 +53,24 @@ I've kept the display logic code fairly encapsulated so that you can be free to
 implement whatever kind of display you'd like. My intitial prototypes were built
 using an LCD display.
 
+### Scoring Buttons
+
+There are scoring buttons mounted under each side of the table. I used some
+[big dome push buttons](https://www.sparkfun.com/products/11275) from Sparkfun.
+These are pretty big, you could certainly get away with much smaller buttons,
+but I ordered them so I rolled with it.
+
+To connect the buttons to the main module I used some 1/8" audio jacks and cables.
+These are readily available, cheap, and perfectly support the button signal and
+a line to light the LED in the button.
+
+To mount the buttons under the table I designed and printed some simple boxes.
+You can find the openscad and stl files in the models directory. I printed these
+on a Makerbot Replicator 2. It's just a box that goes under a table so you can
+get away with printing at a lower resolution (0.3mm), but be aware that the hole
+for the audio jack will probably have to be drilled and smoothed out some before
+it fits nicely.
+
 ## Contributing
 
 Got an idea for improving Pingduino? Found a bug? I'd love to know about it!
