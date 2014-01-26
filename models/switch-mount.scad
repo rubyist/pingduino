@@ -16,7 +16,7 @@ table_padding = 40;
 
 // I want 30mm around the button's hole
 bottom_padding = 30;
-extra_padding = 2;
+extra_padding = 4;
 
 // The thickness of the box walls
 wall_thickness = 3;
