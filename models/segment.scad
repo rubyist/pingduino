@@ -1,5 +1,5 @@
 radius = 18;
-height = 30;
+height = 22;
 length = 70;
 wall   =  2;
 
