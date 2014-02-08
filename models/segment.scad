@@ -8,10 +8,9 @@ $fn=100;
 module post() {
     difference() {
         cylinder(r=4, h=height-wall);
-        cylinder(r=1.5, h=4);
+        cylinder(r=1.5, h=10);
     }
 }
-
 
 difference() {
     hull() {
