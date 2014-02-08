@@ -1,6 +1,4 @@
 #include <Adafruit_NeoPixel.h>
-#include "WaveUtil.h"
-#include "WaveHC.h"
 
 #include "Button.h"
 #include "Game.h"
@@ -12,12 +10,13 @@
 #define INACTIVEMILLIS  1200000 // 20 minutes
 
 // Game Logics
-volatile int p1Score = 0;
-volatile int p2Score = 0;
-volatile int requestReset = 0; // 0 = nobody, 1 = p1, 2 = p2
-volatile unsigned long lastActivityTime;
+int p1Score = 0;
+int p2Score = 0;
+int requestReset = 0; // 0 = nobody, 1 = p1, 2 = p2
+unsigned long lastActivityTime;
 
 boolean sleeping = false;
+boolean winSent = false;
 
 Button p1Button(P1PIN);
 Button p2Button(P2PIN);
@@ -42,7 +41,7 @@ void setup()
   display.refresh(game);
   
   lastActivityTime = millis();
-  Serial.println("Initialized");
+  Serial.println("dbg: Initialized");
 }
 
 void p1ButtonPressed()
@@ -51,7 +50,7 @@ void p1ButtonPressed()
   if (sleeping) return;
   if (game.over()) return;
   
-  Serial.println("Score p1");
+  Serial.println("score: 1,1");
   p1Score++;
 }
 
@@ -60,7 +59,7 @@ void p1ResetRequest()
   lastActivityTime = millis();
   if (sleeping) return;
 
-  Serial.println("Reset p1");
+  Serial.println("reset: 1");
   requestReset = 1;
 }
 
@@ -70,7 +69,7 @@ void p1DecrementScore() {
   if (game.over()) return;
 
   if (p1Score > 0) {
-    Serial.println("Score decrement p1");
+    Serial.println("score: 1,-1");
     p1Score--;
   }
 }
@@ -81,7 +80,7 @@ void p2ButtonPressed()
   if (sleeping) return;
   if (game.over()) return;
   
-  Serial.println("Score p2");
+  Serial.println("score: 2,1");
   p2Score++;
 }
 
@@ -90,7 +89,7 @@ void p2ResetRequest()
   lastActivityTime = millis();
   if (sleeping) return;
 
-  Serial.println("Reset p2");
+  Serial.println("reset: 2");
   requestReset = 2;
 }
 
@@ -100,7 +99,7 @@ void p2DecrementScore() {
   if (game.over()) return;
 
   if (p2Score > 0) {
-    Serial.println("Score decrement p2");
+    Serial.println("score: 2,-1");
     p2Score--;
   }
 }
@@ -129,11 +128,21 @@ void loop()
   // Show the score
   display.refresh(game);
 
+  // Send game over event
+  if (game.over() && !winSent) {
+    Serial.print("win: ");
+    Serial.print(p1Score);
+    Serial.print(",");
+    Serial.println(p2Score);
+    winSent = true;
+  }
+
   // Handle game reset
   if (requestReset > 0) {
     game.restart(requestReset);
     p1Score = p2Score = 0;
     requestReset = 0;
+    winSent = false;
   }
   
   delay(20);
@@ -144,7 +153,7 @@ void goToSleep()
   if (sleeping) return;
   sleeping = true;
   display.sleep();
-  Serial.println("Going to sleep.");
+  Serial.println("dbg: Going to sleep.");
 }
 
  void wakeup()
@@ -152,5 +161,5 @@ void goToSleep()
    if (!sleeping) return;
    
    sleeping = false;
-   Serial.println("Waking up.");
+   Serial.println("dbg: Waking up.");
  }
