@@ -1,4 +1,6 @@
 #include <Adafruit_NeoPixel.h>
+#include <SoftwareSerial.h>
+#include <Garan.h>
 
 #include "Button.h"
 #include "Game.h"
@@ -8,6 +10,8 @@
 #define P2PIN           3
 #define LONGPRESS_TIME  1000
 #define INACTIVEMILLIS  1200000 // 20 minutes
+#define AUDIOTX         6
+#define AUDIORX         8
 
 // Game Logics
 int p1Score = 0;
@@ -23,6 +27,10 @@ Button p2Button(P2PIN);
 
 Game game;
 Display display;
+
+SoftwareSerial garanSerial(AUDIOTX, AUDIORX);
+Garan songPlayer(garanSerial);
+
 
 void setup()
 {
