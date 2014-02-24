@@ -138,6 +138,7 @@ void loop()
 
   // Send game over event
   if (game.over() && !winSent) {
+    songPlayer.singlePlay(1);
     Serial.print("win: ");
     Serial.print(p1Score);
     Serial.print(",");
@@ -151,6 +152,7 @@ void loop()
     p1Score = p2Score = 0;
     requestReset = 0;
     winSent = false;
+    songPlayer.stop();
   }
   
   delay(20);
