@@ -6,16 +6,17 @@
 #define DEBOUNCE_TIME 1000
 
 /*
-PB0 - unassigned
+PB0 - button leds
 PB1 - display
 PB2 - unassigned
 PB3 - p1 score
 PB4 - p2 score
-PB5 - unassgined
+PB5 - unassigned
 */
 
-#define P1BUTTON PB3
-#define P2BUTTON PB4
+#define P1BUTTON  PB3
+#define P2BUTTON  PB4
+#define BUTTONLED PB0
 
 uint8_t debounce(uint8_t button) {
   if (bit_is_clear(PINB, button)) {
@@ -33,8 +34,10 @@ int main(void) {
   uint8_t p2buttonWasPressed = 0;
   uint8_t p2Score = 0;
 
+  DDRB |= (1 << BUTTONLED);
 
   PORTB |= (1 << P1BUTTON) | (1 << P2BUTTON);
+  PORTB |= (1 << BUTTONLED);
 
   CLKPR=_BV(CLKPCE);
   CLKPR=0;
