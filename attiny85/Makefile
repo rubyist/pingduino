@@ -20,8 +20,8 @@
 DEVICE     = attiny85
 CLOCK      = 8000000
 PROGRAMMER = -c avrisp -P /dev/tty.usbserial-A602SIAQ -b 19200
-SOURCES    = main.c display.c light_ws2812.c
-OBJECTS    = main.o display.o light_ws2812.o
+SOURCES    = main.c display.c button.c light_ws2812.c softuart.c
+OBJECTS    = main.o display.o button.o light_ws2812.o softuart.o
 FUSES      = -U hfuse:w:0xd9:m -U lfuse:w:0x24:m
 
 # ATMega8 fuse bits used above (fuse bits for other devices are different!):
